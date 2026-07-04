@@ -103,12 +103,16 @@ export class DialogAddClienteComponent {
       return;
     }
 
-    const data: any = await this.consultasService.searchDoc(doc, tipoDoc);
+    try {
+      const data: any = await this.consultasService.searchDoc(doc, tipoDoc);
 
-    this.formulario.get('nombres')?.setValue(`${data.nombres}`);
-    this.formulario.get('direc')?.setValue(`${data.direc ?? ''}`);
-
-    this.progressBuscarDoc.set(false);
+      if (data) {
+        this.formulario.get('nombres')?.setValue(`${data.nombres}`);
+        this.formulario.get('direc')?.setValue(`${data.direc ?? ''}`);
+      }
+    } finally {
+      this.progressBuscarDoc.set(false);
+    }
   }
 
   resetDoc() {

@@ -211,13 +211,14 @@ import { MostrarActivoPipe } from '../../../pipes/mostrar-activo.pipe';
                             <span>Editar</span>
                           </button>
                         }
-                        @if (usuarioService.usuario()?.cod_rol == 'A') {
-                          @if (!item.comprobante) {
-                            <button mat-menu-item (click)="deleteReparto(item)">
-                              <mat-icon>delete</mat-icon>
-                              Eliminar
-                            </button>
-                          }
+                        @if (
+                          usuarioService.usuario()?.cod_rol == 'A' &&
+                          !item.comprobante
+                        ) {
+                          <button mat-menu-item (click)="deleteReparto(item)">
+                            <mat-icon>delete</mat-icon>
+                            Eliminar
+                          </button>
                         }
                       } @else {
                         @if (usuarioService.usuario()?.cod_rol == 'A') {
