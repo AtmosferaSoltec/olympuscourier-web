@@ -35,6 +35,7 @@
           <div class="flex gap-2">
             <input type="search" placeholder="Ingrese número de documento"
               [maxLength]="getMaxLength()" formControlName="doc" autocomplete="off"
+              (input)="docError.set(null)"
               class="flex-1 min-w-0 px-3 py-2 text-sm text-t bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-p-500/20 focus:border-p-500 transition-all"/>
             @if (progressBuscarDoc()) {
             <div class="loader"></div>
@@ -47,6 +48,15 @@
           </div>
           @if (formulario.get('doc')?.hasError('required') && formulario.get('doc')?.touched) {
           <span class="text-xs text-red-500 font-medium">Campo obligatorio</span>
+          }
+          @if (docError()) {
+          <span class="flex items-center gap-1 text-xs text-red-500 font-medium">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+            </svg>
+            {{ docError() }}
+          </span>
           }
         </div>
       </div>

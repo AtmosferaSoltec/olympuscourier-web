@@ -98,23 +98,31 @@ export class GenerarComprobanteComponent implements OnInit, OnDestroy {
   async buscarDoc() {
     this.isLoadingSearchDoc.set(true);
     if (this.doc) {
-      if (this.tipoComprobante() === 1) {
-        const data = await this.consultaService.searchDoc(this.doc, 'ruc');
+      try {
+        if (this.tipoComprobante() === 1) {
+          const data = await this.consultaService.searchDoc(this.doc, 'ruc');
 
-        this.nombre = data?.nombres;
-        this.direc = data?.direc;
-        this.correo = data?.correo;
-        this.telefono = data?.telefono;
-      }
-
-      if (this.tipoComprobante() === 2) {
-        const data = await this.consultaService.searchDoc(this.doc, 'dni');
-        if (data) {
           this.nombre = data?.nombres;
           this.direc = data?.direc;
           this.correo = data?.correo;
           this.telefono = data?.telefono;
         }
+
+        if (this.tipoComprobante() === 2) {
+          const data = await this.consultaService.searchDoc(this.doc, 'dni');
+          if (data) {
+            this.nombre = data?.nombres;
+            this.direc = data?.direc;
+            this.correo = data?.correo;
+            this.telefono = data?.telefono;
+          }
+        }
+      } catch (error: any) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No encontrado',
+          text: error?.message ?? 'No se pudo consultar el documento',
+        });
       }
     }
     this.isLoadingSearchDoc.set(false);

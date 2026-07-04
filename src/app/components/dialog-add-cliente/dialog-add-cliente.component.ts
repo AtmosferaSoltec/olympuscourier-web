@@ -67,9 +67,11 @@ export class DialogAddClienteComponent {
   });
 
   progressBuscarDoc = signal<boolean>(false);
+  docError = signal<string | null>(null);
 
   async buscarDoc() {
     this.progressBuscarDoc.set(true);
+    this.docError.set(null);
     const { doc, tipo } = this.formulario.value;
 
     if (!doc) {
@@ -106,10 +108,10 @@ export class DialogAddClienteComponent {
     try {
       const data: any = await this.consultasService.searchDoc(doc, tipoDoc);
 
-      if (data) {
-        this.formulario.get('nombres')?.setValue(`${data.nombres}`);
-        this.formulario.get('direc')?.setValue(`${data.direc ?? ''}`);
-      }
+      this.formulario.get('nombres')?.setValue(`${data.nombres}`);
+      this.formulario.get('direc')?.setValue(`${data.direc ?? ''}`);
+    } catch (error: any) {
+      this.docError.set(error?.message ?? 'No se pudo consultar el documento');
     } finally {
       this.progressBuscarDoc.set(false);
     }
@@ -117,6 +119,7 @@ export class DialogAddClienteComponent {
 
   resetDoc() {
     this.formulario.get('doc')?.reset();
+    this.docError.set(null);
   }
 
   getMaxLength(): number {
