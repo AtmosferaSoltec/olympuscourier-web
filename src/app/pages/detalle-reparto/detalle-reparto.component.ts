@@ -11,6 +11,7 @@ import { DialogFotoComponent } from './components/dialog-foto/dialog-foto.compon
 import { HistorialReparto } from '../../interfaces/reparto';
 import { FormatTelfPipe } from '../../pipes/format-telf.pipe';
 import { FormatNumPipe } from '../../pipes/format-num.pipe';
+import { detallePendiente, infoEstadoPago } from '../../shared/estado-pago';
 
 /** Códigos de operación del historial (ver TIPO_OPERACION en el backend). */
 const OP_CONFORMIDAD = 4;
@@ -66,6 +67,8 @@ const ICONOS_OPERACION: Record<number, string> = {
   5: 'local_shipping',
   6: 'cancel',
   7: 'edit',
+  8: 'paid',
+  9: 'undo',
 };
 
 @Component({
@@ -153,6 +156,11 @@ export class DetalleRepartoComponent implements OnInit {
   totalEnvio = computed(() =>
     this.items().reduce((acc, item) => acc + (Number(item.precio) || 0), 0),
   );
+
+  /** Badge del estado de cobro, derivado en el backend. */
+  infoPago = computed(() => infoEstadoPago(this.service.reparto()?.estado_pago));
+
+  detallePendiente = computed(() => detallePendiente(this.service.reparto()));
 
   /** Estado de carga de la miniatura de la foto de conformidad. */
   fotoCargando = signal(true);

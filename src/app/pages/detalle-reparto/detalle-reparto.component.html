@@ -238,6 +238,35 @@
           </div>
         </div>
 
+        <!--Estado de cobro-->
+        <div class="dato">
+          <mat-icon class="dato__icono">payments</mat-icon>
+          <div class="flex-1 dato__cuerpo">
+            <span class="dato__label">Estado de pago</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <span
+                class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold border rounded-full"
+                [class]="infoPago().clases"
+              >
+                <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">{{
+                  infoPago().icono
+                }}</mat-icon>
+                {{ infoPago().texto }}
+              </span>
+
+              @if ((service.reparto()?.monto_por_cobrar ?? 0) > 0) {
+                <span class="text-xs font-semibold text-rose-600">
+                  Falta cobrar S/ {{ service.reparto()?.monto_por_cobrar | number: '1.2-2' }}
+                </span>
+              }
+            </div>
+
+            @if (detallePendiente(); as detalle) {
+              <span class="text-xs text-textos">{{ detalle }}</span>
+            }
+          </div>
+        </div>
+
         <div class="dato">
           <mat-icon class="dato__icono">receipt_long</mat-icon>
           <div class="dato__cuerpo">

@@ -60,22 +60,30 @@ import { InputComponent } from '../../../shared/components/input/input.component
           ></app-input>
 
           <!-- Precio + Adicional -->
-          <div class="grid grid-cols-2 gap-3">
-            <app-input
-              label="Precio (S/)"
-              type="number"
-              placeholder="0.00"
-              [(ngModel)]="precio"
-              [error]="errors.precio"
-            ></app-input>
-            <app-input
-              label="Adicional (S/)"
-              hint="(opcional)"
-              type="number"
-              placeholder="0.00"
-              [(ngModel)]="adicional"
-              [error]="errors.adicional"
-            ></app-input>
+          <div class="flex flex-col gap-1.5">
+            <div class="grid grid-cols-2 gap-3">
+              <app-input
+                label="Precio (S/)"
+                hint="(opcional)"
+                type="number"
+                placeholder="0.00"
+                [(ngModel)]="precio"
+                [error]="errors.precio"
+              ></app-input>
+              <app-input
+                label="Adicional (S/)"
+                hint="(opcional)"
+                type="number"
+                placeholder="0.00"
+                [(ngModel)]="adicional"
+                [error]="errors.adicional"
+              ></app-input>
+            </div>
+
+            <p class="flex items-start gap-1.5 text-xs text-textos/70">
+              <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4 shrink-0 mt-px">info</mat-icon>
+              Déjalos vacíos si la guía de remisión ya viene pagada. Se registran como S/ 0.00.
+            </p>
           </div>
 
           <!-- Clave -->
@@ -153,20 +161,29 @@ export class DialogAddItemRepartoComponent {
     this.dialogRef.close();
   }
 
+  /**
+   * Los montos son opcionales: las guías de remisión que ya vienen pagadas se
+   * registran sin cobro. Un campo vacío equivale a 0.
+   */
+  private validarMonto(valor: string, etiqueta: string): string {
+    if (!valor?.trim()) return '';
+
+    const numero = Number(valor);
+    if (isNaN(numero)) return `El ${etiqueta} debe ser un número válido`;
+    if (numero < 0) return `El ${etiqueta} no puede ser negativo`;
+    return '';
+  }
+
+  /** Convierte el monto del formulario a número, tomando el vacío como 0. */
+  private montoANumero(valor: string): number {
+    return valor?.trim() ? Number(valor) : 0;
+  }
+
   onAceptar() {
     this.errors = { precio: '', adicional: '', clave: '', detalle: '' };
 
-    if (isNaN(Number(this.precio)) || Number(this.precio) < 1) {
-      this.errors.precio = 'El precio debe ser un número mayor a 0';
-    }
-
-    //Validar si el adicional no esta vacio, si no esta validar si el valor es numero y mayor a 1
-    if (
-      this.adicional &&
-      (isNaN(Number(this.adicional)) || Number(this.adicional) < 1)
-    ) {
-      this.errors.adicional = 'El adicional debe ser un número mayor a 0';
-    }
+    this.errors.precio = this.validarMonto(this.precio, 'precio');
+    this.errors.adicional = this.validarMonto(this.adicional, 'adicional');
 
     //Validar si el detalle no esta vacio
     if (!this.detalle) {
@@ -189,8 +206,8 @@ export class DialogAddItemRepartoComponent {
 
     const itemReparto: ItemReparto = {
       num_guia: this.num_guia,
-      precio: Number(this.precio),
-      adicional: Number(this.adicional),
+      precio: this.montoANumero(this.precio),
+      adicional: this.montoANumero(this.adicional),
       clave: this.clave,
       detalle: this.detalle,
     };

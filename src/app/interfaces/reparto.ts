@@ -1,7 +1,20 @@
 import { Cliente } from './cliente';
 import { ItemReparto } from './item-reparto';
 
-export interface Reparto {
+/** Estado de cobro derivado en el backend a partir de los montos y las banderas. */
+export type EstadoPago = 'SIN_COBRO' | 'PENDIENTE' | 'PARCIAL' | 'PAGADO';
+
+/** Campos de cobro que acompañan a un reparto en el listado y en el detalle. */
+export interface DatosPago {
+  estado_pago?: EstadoPago;
+  pagado_reparto?: 'S' | 'N';
+  pagado_adicional?: 'S' | 'N';
+  monto_reparto?: number;
+  monto_adicional?: number;
+  monto_por_cobrar?: number;
+}
+
+export interface Reparto extends DatosPago {
   id?: number;
   id_ruc?: string;
   num_reparto?: number;
@@ -37,7 +50,7 @@ export interface HistorialReparto {
   nombre?: string;
 }
 
-export interface RepartoNew {
+export interface RepartoNew extends DatosPago {
   id?: number;
   num_reparto?: number;
   usuario?: string;

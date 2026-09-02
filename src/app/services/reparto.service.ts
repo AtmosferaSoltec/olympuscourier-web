@@ -34,6 +34,20 @@ export class RepartoService {
     return this.http.post<Result>(this.url, body);
   }
 
+  /**
+   * Marca o revierte el cobro de un reparto. Cada concepto es opcional: el que
+   * no se envía queda como está.
+   */
+  marcarPago(
+    id_reparto: number,
+    conceptos: { pagar_reparto?: boolean; pagar_adicional?: boolean },
+  ) {
+    return this.http.post<Result>(`${this.url}/marcarPago`, {
+      id_reparto,
+      ...conceptos,
+    });
+  }
+
   update(id: number, body: any) {
     return this.http.patch<Result>(`${this.url}/${id}`, body);
   }

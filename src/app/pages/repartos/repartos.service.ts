@@ -99,6 +99,42 @@ export class RepartosService {
     });
   }
 
+  /** Registra o revierte el cobro y refresca el listado. */
+  marcarPago(
+    id_reparto: number,
+    conceptos: { pagar_reparto?: boolean; pagar_adicional?: boolean },
+  ) {
+    this.repartoService.marcarPago(id_reparto, conceptos).subscribe({
+      next: (res) => {
+        if (res?.isSuccess) {
+          Swal.fire({
+            title: 'Listo',
+            text: 'Se actualizó el estado de pago',
+            icon: 'success',
+            confirmButtonColor: '#047CC4',
+          });
+
+          this.getAll();
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: res?.mensaje || 'No se pudo actualizar el estado de pago',
+            icon: 'error',
+            confirmButtonColor: '#047CC4',
+          });
+        }
+      },
+      error: (err: any) => {
+        Swal.fire({
+          title: 'Error',
+          text: err?.error?.mensaje || err?.message || 'Error de conexión',
+          icon: 'error',
+          confirmButtonColor: '#047CC4',
+        });
+      },
+    });
+  }
+
   eliminarReparto(id_reparto: number) {
     this.repartoService.setActivo(id_reparto, 'N').subscribe({
       next: (res) => {

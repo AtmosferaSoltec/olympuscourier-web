@@ -16,6 +16,11 @@ import { MostrarEstadoPipe } from '../../../pipes/mostrar-estado.pipe';
 import { RepartosService } from '../repartos.service';
 import { FormatNumPipe } from '../../../pipes/format-num.pipe';
 import { MostrarActivoPipe } from '../../../pipes/mostrar-activo.pipe';
+import {
+  detallePendiente,
+  infoEstadoPago,
+  tienePendiente,
+} from '../../../shared/estado-pago';
 
 @Component({
   selector: 'app-tabla',
@@ -35,6 +40,7 @@ import { MostrarActivoPipe } from '../../../pipes/mostrar-activo.pipe';
               <th scope="col" class="px-4 py-3">Cliente</th>
               <th scope="col" class="px-4 py-3">Creado</th>
               <th scope="col" class="px-4 py-3">Estado Envío</th>
+              <th scope="col" class="px-4 py-3">Estado Pago</th>
               <th scope="col" class="px-4 py-3">Estado</th>
               <th scope="col" class="px-4 py-3 hidden md:table-cell">
                 C. Adicional
@@ -150,6 +156,26 @@ import { MostrarActivoPipe } from '../../../pipes/mostrar-activo.pipe';
                     </span>
                   </td>
 
+                  <!-- Estado de Pago -->
+                  <td class="px-4 py-2 align-top">
+                    <span
+                      class="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap"
+                      [class]="infoPago(item).clases"
+                    >
+                      <span
+                        class="h-1.5 w-1.5 rounded-full"
+                        [class]="infoPago(item).punto"
+                      ></span>
+                      {{ infoPago(item).texto }}
+                    </span>
+
+                    @if (detallePendiente(item); as detalle) {
+                      <div class="text-[11px] text-textos/60 mt-0.5">
+                        {{ detalle }}
+                      </div>
+                    }
+                  </td>
+
                   <!-- Estado (activo) -->
                   <td class="px-4 py-2 align-top">
                     <span
@@ -211,6 +237,19 @@ import { MostrarActivoPipe } from '../../../pipes/mostrar-activo.pipe';
                             <span>Editar</span>
                           </button>
                         }
+
+                        <!-- Cobro: marcar o revertir según lo que falte -->
+                        @if (tienePendiente(item)) {
+                          <button mat-menu-item (click)="marcarPagado(item)">
+                            <mat-icon>paid</mat-icon>
+                            <span>Marcar como pagado</span>
+                          </button>
+                        } @else if (item.estado_pago === 'PAGADO') {
+                          <button mat-menu-item (click)="revertirPago(item)">
+                            <mat-icon>undo</mat-icon>
+                            <span>Revertir pago</span>
+                          </button>
+                        }
                         @if (
                           usuarioService.usuario()?.cod_rol == 'A' &&
                           !item.comprobante
@@ -237,7 +276,7 @@ import { MostrarActivoPipe } from '../../../pipes/mostrar-activo.pipe';
               } @empty {
                 <!-- EMPTY STATE -->
                 <tr>
-                  <td colspan="9" class="px-6 py-10">
+                  <td colspan="10" class="px-6 py-10">
                     <div
                       class="flex flex-col items-center justify-center gap-2 text-center"
                     >
@@ -300,6 +339,88 @@ export class TablaComponent {
   repartosService = inject(RepartosService);
   usuarioService = inject(UsuarioService);
   router = inject(Router);
+
+  infoPago = (reparto: RepartoNew) => infoEstadoPago(reparto.estado_pago);
+  detallePendiente = detallePendiente;
+  tienePendiente = tienePendiente;
+
+  /**
+   * Marca el cobro. Si hay dos conceptos pendientes se pregunta cuál se cobró,
+   * porque el cliente puede pagar solo una parte.
+   */
+  async marcarPagado(reparto: RepartoNew) {
+    if (!reparto.id) return;
+
+    const faltaReparto = (reparto.monto_reparto ?? 0) > 0 && reparto.pagado_reparto !== 'S';
+    const faltaAdicional = (reparto.monto_adicional ?? 0) > 0 && reparto.pagado_adicional !== 'S';
+
+    let conceptos: { pagar_reparto?: boolean; pagar_adicional?: boolean };
+
+    if (faltaReparto && faltaAdicional) {
+      const { value } = await Swal.fire({
+        title: '¿Qué se cobró?',
+        input: 'radio',
+        inputOptions: {
+          ambos: `Todo (S/ ${(reparto.monto_por_cobrar ?? 0).toFixed(2)})`,
+          reparto: `Solo el reparto (S/ ${(reparto.monto_reparto ?? 0).toFixed(2)})`,
+          adicional: `Solo el adicional (S/ ${(reparto.monto_adicional ?? 0).toFixed(2)})`,
+        },
+        inputValue: 'ambos',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#047CC4',
+      });
+
+      if (!value) return;
+
+      conceptos = {
+        pagar_reparto: value === 'ambos' || value === 'reparto',
+        pagar_adicional: value === 'ambos' || value === 'adicional',
+      };
+    } else {
+      const monto = faltaReparto ? reparto.monto_reparto : reparto.monto_adicional;
+      const concepto = faltaReparto ? 'el reparto' : 'el cobro adicional';
+
+      const { isConfirmed } = await Swal.fire({
+        title: '¿Confirmar cobro?',
+        text: `Se marcará como pagado ${concepto} por S/ ${(monto ?? 0).toFixed(2)}.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#047CC4',
+      });
+
+      if (!isConfirmed) return;
+
+      conceptos = faltaReparto ? { pagar_reparto: true } : { pagar_adicional: true };
+    }
+
+    this.repartosService.marcarPago(reparto.id, conceptos);
+  }
+
+  /** Corrige un pago marcado por error. Solo disponible desde la web. */
+  async revertirPago(reparto: RepartoNew) {
+    if (!reparto.id) return;
+
+    const { isConfirmed } = await Swal.fire({
+      title: '¿Revertir el pago?',
+      text: 'El reparto volverá a figurar como pendiente de cobro. Queda registrado en el historial.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Revertir',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#047CC4',
+    });
+
+    if (!isConfirmed) return;
+
+    this.repartosService.marcarPago(reparto.id, {
+      pagar_reparto: false,
+      pagar_adicional: false,
+    });
+  }
 
   toDetalle(id: number | undefined) {
     this.router.navigate(['/menu/detalle-reparto', id]);
