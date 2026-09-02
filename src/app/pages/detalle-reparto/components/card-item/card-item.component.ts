@@ -1,19 +1,16 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 import { ItemReparto } from '../../../../interfaces/item-reparto';
-import { MatIconModule } from '@angular/material/icon';
-import { PaqueteService } from '../../../../services/paquete.service';
 
 @Component({
-    selector: 'app-card-item',
-    templateUrl: './card-item.component.html',
-    styleUrl: './card-item.component.scss',
-    imports: [MatIconModule]
+  selector: 'app-card-item',
+  templateUrl: './card-item.component.html',
+  styleUrl: './card-item.component.scss',
+  imports: [MatIconModule, DecimalPipe],
 })
 export class CardItemComponent {
-
   @Input() item: ItemReparto | undefined;
   @Input() index: number = 0;
-
-  listTipoPaquetes = inject(PaqueteService).listTipoPaquetes;
 }

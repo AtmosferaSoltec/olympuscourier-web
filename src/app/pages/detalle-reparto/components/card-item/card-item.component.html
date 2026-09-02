@@ -1,24 +1,39 @@
-<div class="card-item">
-    <h2>Item {{index+1}}</h2>
-    <div class="content">
-        <div class="left">
-            <p>N Guia:</p>
-            <p>Detalle:</p>
+<div class="item">
+  <div class="flex items-start gap-3">
+    <!--Índice del paquete-->
+    <span
+      class="flex items-center justify-center w-8 h-8 text-sm font-bold rounded-lg bg-p-100 text-p-700 shrink-0"
+    >
+      {{ index + 1 }}
+    </span>
+
+    <div class="flex flex-col flex-1 min-w-0 gap-2">
+      <!--Guía y detalle-->
+      <div class="flex flex-col gap-1">
+        <div class="flex flex-wrap items-center gap-2">
+          <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4 text-gray-400">receipt</mat-icon>
+          <span class="text-[11px] font-semibold tracking-wide uppercase text-t2">N° Guía</span>
+          <span class="text-sm font-bold break-all text-t">
+            {{ item?.num_guia || 'Sin guía' }}
+          </span>
         </div>
-        <div class="right">
-            <p>{{item?.num_guia || 'Sin Guía'}}</p>
-            <p>{{item?.detalle || 'Sin Detalle'}}</p>
-        </div>
+
+        <p class="text-sm break-words text-textos">
+          {{ item?.detalle || 'Sin detalle' }}
+        </p>
+      </div>
+
+      <!--Montos-->
+      <div class="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+        <span class="monto">
+          <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">payments</mat-icon>
+          Envío: <strong class="text-t">S/ {{ item?.precio | number: '1.2-2' }}</strong>
+        </span>
+        <span class="monto">
+          <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">add_box</mat-icon>
+          Adicional: <strong class="text-t">S/ {{ item?.adicional | number: '1.2-2' }}</strong>
+        </span>
+      </div>
     </div>
-    <hr>
-    <div class="container2 mt-2">
-        <div>
-            <mat-icon>inventory_2</mat-icon>
-            <span>Adicional: S/{{item?.adicional}}</span>
-        </div>
-        <div>
-            <mat-icon>payments</mat-icon>
-            <span>Precio: S/{{item?.precio}}</span>
-        </div>
-    </div>
+  </div>
 </div>

@@ -1,108 +1,412 @@
-<div class="flex flex-col gap-4 md:flex-row">
-    <div class="flex flex-col flex-[2] gap-3 px-4">
-        <div class="flex flex-row items-center text-p1">
-            <button mat-icon-button (click)="back()" matTooltip="Volver">
-                <mat-icon>arrow_back</mat-icon>
-            </button>
-            <span class="text-xl font-bold text-p1">Detalle de Reparto</span>
-        </div>
+<div class="flex flex-col gap-4 p-3 md:p-5">
+  <!--=================== Cabecera ===================-->
+  <div class="flex flex-wrap items-center gap-2 md:gap-3">
+    <button mat-icon-button (click)="back()" matTooltip="Volver a repartos" aria-label="Volver">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
 
-        <div class="flex flex-col items-start justify-between text-lg font-semibold md:items-center md:flex-row text-textos">
-            Datos del Cliente
-            <span class="mr-1">N° Reparto #{{service.reparto()?.num_reparto | formatNum:6}}</span>
-        </div>
-
-        <!--Datos del Cliente-->
-        <div>
-            <app-detalle-item title="Documento:" [descrip]="service.reparto()?.cliente?.documento"></app-detalle-item>
-            <app-detalle-item title="Cliente:"
-                [descrip]="service.reparto()?.cliente?.nombres | uppercase"></app-detalle-item>
-            <app-detalle-item title="Teléfono:"
-                [descrip]="service.reparto()?.cliente?.telefono | formatTelf"></app-detalle-item>
-            <app-detalle-item title="Distrito:"
-                [descrip]="service.reparto()?.cliente?.distrito | uppercase"></app-detalle-item>
-            <app-detalle-item title="Dirección:"
-                [descrip]="service.reparto()?.cliente?.direc | uppercase"></app-detalle-item>
-            <app-detalle-item title="Referencia:"
-                [descrip]="service.reparto()?.cliente?.referencia | uppercase"></app-detalle-item>
-        </div>
-
-        <hr class="my-2 border-t border-gray-200">
-
-        <!--Detalle de Reparto-->
-        @for (item of service.reparto()?.items; track item.id; let idx = $index) {
-        <app-card-item [item]="item" [index]="idx"></app-card-item>
-        }
+    <div class="flex flex-col min-w-0">
+      <h1 class="text-xl font-bold leading-tight md:text-2xl text-t">Detalle de Reparto</h1>
+      @if (service.reparto()?.num_reparto) {
+        <span class="text-sm font-medium text-textos">
+          N° {{ service.reparto()?.num_reparto | formatNum: 6 }}
+        </span>
+      }
     </div>
-    <!--Datos de Entrega-->
-    <div class="flex-1">
-        <span class="text-lg font-semibold text-textos">Datos de Entrega:</span>
 
-        <div>
-            <app-detalle-item title="Estado" [descrip]="service.reparto()?.estado | mostrarEstado"></app-detalle-item>
-            <app-detalle-item title="Total" [descrip]="'S/ ' + (service.reparto()?.total | number:'1.2-2')" />
-            @if (service.reparto()?.id_comprobante) {
-            <app-detalle-item title="Comprobante"
-                [descrip]="comprobante()?.serie + ' - '+ comprobante()?.num_serie"></app-detalle-item>
-            }@else {
+    <!--Chip de estado-->
+    @if (service.reparto()) {
+      <span
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold border rounded-full"
+        [class]="estado().clases"
+      >
+        <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">{{ estado().icono }}</mat-icon>
+        {{ estado().texto }}
+      </span>
 
-            <app-detalle-item title="Comprobante" descrip="Sin Comprobante"></app-detalle-item>
+      @if (service.reparto()?.activo === 'N') {
+        <span
+          class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-semibold text-gray-600 bg-gray-100 border border-gray-200 rounded-full"
+        >
+          <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">visibility_off</mat-icon>
+          Inactivo
+        </span>
+      }
+    }
+
+    <div class="flex-1"></div>
+
+    <button
+      mat-icon-button
+      (click)="recargar()"
+      matTooltip="Actualizar datos"
+      aria-label="Actualizar"
+      [disabled]="service.cargando()"
+    >
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <!--=================== Cargando ===================-->
+  @if (service.cargando()) {
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div class="flex flex-col gap-4 lg:col-span-2">
+        <div class="h-64 esqueleto rounded-2xl"></div>
+        <div class="h-48 esqueleto rounded-2xl"></div>
+      </div>
+      <div class="flex flex-col gap-4">
+        <div class="h-96 esqueleto rounded-2xl"></div>
+        <div class="h-56 esqueleto rounded-2xl"></div>
+      </div>
+    </div>
+  }
+
+  <!--=================== Sin datos ===================-->
+  @else if (!service.reparto()) {
+    <div
+      class="flex flex-col items-center justify-center gap-3 p-10 text-center bg-white border border-gray-200 rounded-2xl"
+    >
+      <mat-icon class="!w-14 !h-14 !text-[56px] text-gray-300">search_off</mat-icon>
+      <p class="text-lg font-semibold text-t">No se encontró el reparto</p>
+      <p class="max-w-md text-sm text-textos">
+        {{ service.error() || 'Verifica el número de reparto e inténtalo nuevamente.' }}
+      </p>
+      <div class="flex gap-2 mt-2">
+        <button mat-stroked-button (click)="recargar()">
+          <mat-icon>refresh</mat-icon>
+          Reintentar
+        </button>
+        <button mat-flat-button class="!bg-p1 !text-white" (click)="back()">
+          <mat-icon>list</mat-icon>
+          Ver repartos
+        </button>
+      </div>
+    </div>
+  }
+
+  <!--=================== Contenido ===================-->
+  @else {
+    <!--Dos columnas independientes: así cada tarjeta fluye pegada a la anterior
+        y no se generan huecos por filas de grid de altura compartida.-->
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div class="flex flex-col min-w-0 gap-4 lg:flex-[2]">
+        <!--------------- Datos del Cliente --------------->
+        <section class="tarjeta">
+          <header class="tarjeta__header">
+            <div class="tarjeta__icono">
+              <mat-icon>person</mat-icon>
+            </div>
+            <h2 class="tarjeta__titulo">Datos del Cliente</h2>
+          </header>
+
+          <!--Identidad-->
+          <div
+            class="flex flex-col gap-4 p-4 border md:flex-row md:items-center rounded-xl border-p-100 bg-gradient-to-br from-p-50 to-box"
+          >
+            <div
+              class="flex items-center justify-center text-lg font-bold text-white rounded-full shadow-sm w-14 h-14 bg-p1 shrink-0"
+            >
+              {{ iniciales() }}
+            </div>
+
+            <div class="flex flex-col flex-1 min-w-0 gap-2">
+              <h3 class="text-lg font-bold leading-tight break-words text-t">
+                {{ cliente()?.nombres || 'Cliente sin nombre' | uppercase }}
+              </h3>
+
+              <div class="flex flex-wrap gap-1.5">
+                <span class="etiqueta">
+                  <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">badge</mat-icon>
+                  {{ cliente()?.documento || 'Sin documento' }}
+                </span>
+                <span class="etiqueta">
+                  <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">location_city</mat-icon>
+                  {{ cliente()?.distrito || 'Sin distrito' | uppercase }}
+                </span>
+              </div>
+            </div>
+
+            <!--Acciones rápidas-->
+            <div class="flex flex-wrap gap-2 shrink-0">
+              @if (cliente()?.telefono) {
+                <a
+                  class="accion"
+                  [href]="'tel:' + cliente()?.telefono"
+                  matTooltip="Llamar al cliente"
+                >
+                  <mat-icon class="!w-[18px] !h-[18px] !text-[18px] !leading-[18px]">call</mat-icon>
+                  Llamar
+                </a>
+              }
+              @if (cliente()?.url_maps) {
+                <button type="button" class="accion" (click)="abrirMapa()" matTooltip="Abrir ubicación">
+                  <mat-icon class="!w-[18px] !h-[18px] !text-[18px] !leading-[18px]">map</mat-icon>
+                  Ver en mapa
+                </button>
+              }
+            </div>
+          </div>
+
+          <!--Ubicación y contacto-->
+          <div class="grid grid-cols-1 mt-1 gap-x-6 md:grid-cols-2">
+            <div class="dato md:col-span-2">
+              <mat-icon class="dato__icono">home_pin</mat-icon>
+              <div class="dato__cuerpo">
+                <span class="dato__label">Dirección</span>
+                <span class="dato__valor">{{ cliente()?.direc || 'Sin dirección' | uppercase }}</span>
+              </div>
+            </div>
+
+            <div class="dato">
+              <mat-icon class="dato__icono">push_pin</mat-icon>
+              <div class="dato__cuerpo">
+                <span class="dato__label">Referencia</span>
+                <span class="dato__valor">
+                  {{ cliente()?.referencia || 'Sin referencia' | uppercase }}
+                </span>
+              </div>
+            </div>
+
+            <div class="dato">
+              <mat-icon class="dato__icono">phone</mat-icon>
+              <div class="dato__cuerpo">
+                <span class="dato__label">Teléfono</span>
+                @if (cliente()?.telefono) {
+                  <a
+                    class="dato__valor hover:text-p1 hover:underline w-fit"
+                    [href]="'tel:' + cliente()?.telefono"
+                  >
+                    {{ cliente()?.telefono | formatTelf }}
+                  </a>
+                } @else {
+                  <span class="dato__valor">Sin teléfono</span>
+                }
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!--------------- Paquetes --------------->
+        <section class="tarjeta">
+          <header class="tarjeta__header">
+            <div class="tarjeta__icono">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+            <h2 class="tarjeta__titulo">Paquetes</h2>
+            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-p-100 text-p-700">
+              {{ items().length }}
+            </span>
+          </header>
+
+          <div class="flex flex-col gap-3">
+            @for (item of items(); track item.id; let idx = $index) {
+              <app-card-item [item]="item" [index]="idx"></app-card-item>
+            } @empty {
+              <div class="flex flex-col items-center gap-2 py-8 text-center">
+                <mat-icon class="!w-10 !h-10 !text-[40px] text-gray-300">inventory_2</mat-icon>
+                <p class="text-sm font-medium text-textos">Este reparto no tiene paquetes</p>
+              </div>
             }
+          </div>
+        </section>
+      </div>
 
-            <!--
-            @if (service.reparto()?.url_foto) {
-                <img [src]="service.reparto()?.url_foto" alt="">
-            }
-            -->
+      <!--=============== Columna derecha ===============-->
+      <div class="flex flex-col min-w-0 gap-4 lg:flex-1">
+        <!--------------- Datos de Entrega + Foto --------------->
+        <section class="relative overflow-hidden tarjeta">
+          <div class="absolute inset-x-0 top-0 h-1" [class]="estado().acento"></div>
+
+        <header class="tarjeta__header">
+          <div class="tarjeta__icono">
+            <mat-icon>local_shipping</mat-icon>
+          </div>
+          <h2 class="tarjeta__titulo">Datos de Entrega</h2>
+        </header>
+
+        <!--Total-->
+        <div class="flex items-end justify-between p-3 mb-3 bg-box rounded-xl">
+          <div class="flex flex-col">
+            <span class="dato__label">Total del reparto</span>
+            <span class="text-2xl font-bold text-p1">
+              S/ {{ service.reparto()?.total | number: '1.2-2' }}
+            </span>
+          </div>
+          <div class="flex flex-col items-end text-xs text-textos">
+            <span>Envío: S/ {{ totalEnvio() | number: '1.2-2' }}</span>
+            <span>Adicional: S/ {{ totalAdicional() | number: '1.2-2' }}</span>
+          </div>
         </div>
 
-        <table class="w-full text-sm text-textos">
-            <thead class="text-sm uppercase bg-white border-b text-textos">
-                <tr>
-                    <th scope="col" class="px-6 py-3">Usuario</th>
-                    <th scope="col" class="px-6 py-3">Operacion</th>
-                    <th scope="col" class="px-6 py-3">Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if(false){
-                <tr class="bg-white border-b">
-                    <td colspan="7" class="py-3">
-                        <div class="flex items-center justify-center">
-                            <div class="loader"></div>
-                        </div>
-                    </td>
-                </tr>
-                }@else {
+        <div class="dato">
+          <mat-icon class="dato__icono">receipt_long</mat-icon>
+          <div class="dato__cuerpo">
+            <span class="dato__label">Comprobante</span>
+            <span class="dato__valor">{{ comprobante() || 'Sin comprobante' }}</span>
+          </div>
+        </div>
 
-                @for (item of service.reparto()?.historial; track $index) {
-                <tr class="text-center bg-white border-b">
-                    <td class="px-6 py-2">{{item.nombre}}</td>
-                    <td class="px-6 py-2">{{item.tipo_operacion}}</td>
-                    <td class="px-6 py-2">
-                        <div class="flex flex-col items-center justify-center">
-                            <div>
-                                {{item.fecha | date: 'dd/MM/yyyy'}}
-                            </div>
-                            <div>
-                                {{item.fecha | date: 'hh:mm a'}}
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                } @empty {
-                <tr class="bg-white border-b">
-                    <td colspan="7" class="py-2">
-                        <div class="flex items-center justify-center flew-row">
-                            <mat-icon>hourglass_empty</mat-icon>
-                            Sin Datos
-                        </div>
-                    </td>
-                </tr>
-                }
-                }
-            </tbody>
-        </table>
+        <div class="dato">
+          <mat-icon class="dato__icono">event_available</mat-icon>
+          <div class="dato__cuerpo">
+            <span class="dato__label">Fecha de entrega</span>
+            <span class="dato__valor">
+              {{ (fechaEntrega() | date: 'dd/MM/yyyy, hh:mm a') || 'Pendiente de entrega' }}
+            </span>
+          </div>
+        </div>
 
+        <div class="dato">
+          <mat-icon class="dato__icono">how_to_reg</mat-icon>
+          <div class="dato__cuerpo">
+            <span class="dato__label">Entregado por</span>
+            <span class="dato__valor">{{ entregadoPor() || 'Sin registrar' }}</span>
+          </div>
+        </div>
+
+        <!--=========== Foto de conformidad ===========-->
+        <div class="pt-3 mt-3 border-t border-gray-100">
+          <div class="flex items-center justify-between mb-2">
+            <span class="flex items-center gap-1.5 dato__label">
+              <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4 text-p1">photo_camera</mat-icon>
+              Foto de conformidad
+            </span>
+            @if (urlFoto() && !fotoError()) {
+              <button
+                mat-button
+                class="!text-p1 !text-xs !min-w-0 !px-2"
+                (click)="verFoto()"
+                matTooltip="Ver la foto en grande"
+              >
+                Ampliar
+              </button>
+            }
+          </div>
+
+          @if (urlFoto()) {
+            @if (fotoError()) {
+              <!--La URL existe pero la imagen no se pudo cargar-->
+              <div class="foto-vacia">
+                <mat-icon class="!w-10 !h-10 !text-[40px] text-gray-300">broken_image</mat-icon>
+                <p class="text-sm font-medium text-t">No se pudo cargar la foto</p>
+                <a
+                  class="text-xs underline text-p1 break-all"
+                  [href]="urlFoto()"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  Abrir enlace original
+                </a>
+              </div>
+            } @else {
+              <button
+                type="button"
+                class="relative block w-full overflow-hidden bg-gray-100 border border-gray-200 group rounded-xl aspect-[4/3] cursor-zoom-in"
+                (click)="verFoto()"
+                matTooltip="Clic para ampliar"
+                aria-label="Ampliar foto de conformidad"
+              >
+                @if (fotoCargando()) {
+                  <div class="absolute inset-0 esqueleto"></div>
+                }
+
+                <img
+                  [src]="urlFoto()"
+                  alt="Foto de conformidad de la entrega"
+                  class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                  [class.opacity-0]="fotoCargando()"
+                  (load)="fotoCargando.set(false)"
+                  (error)="fotoCargando.set(false); fotoError.set(true)"
+                />
+
+                <!--Superposición al pasar el cursor-->
+                <span
+                  class="absolute inset-0 flex items-center justify-center transition-opacity duration-200 opacity-0 bg-black/40 group-hover:opacity-100"
+                >
+                  <span
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-t bg-white rounded-full shadow"
+                  >
+                    <mat-icon class="!w-4 !h-4 !text-[16px] !leading-4">zoom_in</mat-icon>
+                    Ampliar
+                  </span>
+                </span>
+              </button>
+            }
+          } @else if (service.reparto()?.estado === 'E') {
+            <div class="foto-vacia">
+              <mat-icon class="!w-10 !h-10 !text-[40px] text-gray-300">no_photography</mat-icon>
+              <p class="text-sm font-medium text-t">Entregado sin foto</p>
+              <p class="text-xs text-textos">No se registró una foto al dar conformidad.</p>
+            </div>
+          } @else if (service.reparto()?.estado === 'A') {
+            <div class="foto-vacia">
+              <mat-icon class="!w-10 !h-10 !text-[40px] text-gray-300">block</mat-icon>
+              <p class="text-sm font-medium text-t">Reparto anulado</p>
+              <p class="text-xs text-textos">No hay foto de conformidad.</p>
+            </div>
+          } @else {
+            <div class="foto-vacia">
+              <mat-icon class="!w-10 !h-10 !text-[40px] text-gray-300">photo_camera</mat-icon>
+              <p class="text-sm font-medium text-t">Aún sin foto</p>
+              <p class="text-xs text-textos">
+                Se mostrará cuando el repartidor dé conformidad de la entrega.
+              </p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!--------------- Historial --------------->
+      <section class="tarjeta">
+        <header class="tarjeta__header">
+          <div class="tarjeta__icono">
+            <mat-icon>history</mat-icon>
+          </div>
+          <h2 class="tarjeta__titulo">Historial</h2>
+        </header>
+
+        <ol class="flex flex-col">
+          @for (mov of historial(); track mov.id; let ultimo = $last) {
+            <li class="relative flex gap-3 pb-4 last:pb-0">
+              <!--Línea vertical del timeline-->
+              @if (!ultimo) {
+                <span class="absolute left-[15px] top-8 bottom-0 w-px bg-gray-200"></span>
+              }
+
+              <span
+                class="z-10 flex items-center justify-center w-8 h-8 border rounded-full shrink-0"
+                [class]="
+                  mov.id_tipo_operacion === 4
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                    : 'bg-p-50 text-p1 border-p-200'
+                "
+              >
+                <mat-icon class="!w-[18px] !h-[18px] !text-[18px] !leading-[18px]">
+                  {{ iconoOperacion(mov.id_tipo_operacion) }}
+                </mat-icon>
+              </span>
+
+              <div class="flex flex-col min-w-0 pt-1">
+                <span class="text-sm font-semibold break-words text-t">
+                  {{ mov.tipo_operacion || 'Operación' }}
+                </span>
+                <span class="text-xs break-words text-textos">
+                  {{ mov.nombre || 'Usuario desconocido' }}
+                </span>
+                <span class="text-xs text-t2">
+                  {{ mov.fecha | date: 'dd/MM/yyyy, hh:mm a' }}
+                </span>
+              </div>
+            </li>
+          } @empty {
+            <li class="flex flex-col items-center gap-2 py-8 text-center">
+              <mat-icon class="!w-10 !h-10 !text-[40px] text-gray-300">hourglass_empty</mat-icon>
+              <p class="text-sm font-medium text-textos">Sin movimientos registrados</p>
+            </li>
+          }
+        </ol>
+      </section>
+      </div>
     </div>
+  }
 </div>

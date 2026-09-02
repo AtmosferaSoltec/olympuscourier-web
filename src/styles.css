@@ -167,3 +167,10 @@ h6 {
   border-color: #047cc4;
   color: #fff;
 }
+
+/* Visor de la foto de conformidad (detalle de reparto) */
+.dialog-foto-panel .mat-mdc-dialog-surface {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
