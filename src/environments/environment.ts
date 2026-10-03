@@ -1,4 +1,4 @@
 export const environment = {
-    baseUrl: 'https://api.olympuscourier.com',
+    baseUrl: 'https://api.olympuscourier.atmosfera-soltec.com',
     token: ''
 };
