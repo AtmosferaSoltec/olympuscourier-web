@@ -8,6 +8,7 @@ import { RepartosComponent } from '../repartos/repartos.component';
 import { GenerarComprobanteComponent } from '../generar-comprobante/generar-comprobante.component';
 import { isAdminGuard } from '../../guard/is-admin.guard';
 import { PagosComponent } from '../pagos/pagos.component';
+import { MiCuentaComponent } from '../mi-cuenta/mi-cuenta.component';
 
 export default [
     { path: 'repartos', component: RepartosComponent },
@@ -17,6 +18,7 @@ export default [
     { path: 'clientes', component: ClientesComponent },
     { path: 'comprobantes', component: ComprobantesComponent },
     { path: 'pagos', component: PagosComponent },
+    { path: 'mi-cuenta', component: MiCuentaComponent },
     {
         path: 'panel-admin',
         component: PanelAdminComponent,

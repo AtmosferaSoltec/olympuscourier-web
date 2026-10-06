@@ -112,7 +112,13 @@
 
     <!-- Usuario -->
     <div class="user-area">
-      <div class="user-card">
+      <a
+        routerLink="/menu/mi-cuenta"
+        (click)="closeOnMobile()"
+        class="user-card"
+        [class.active]="enMiCuenta()"
+        aria-label="Ir a mi cuenta"
+      >
         @if (usuarioService.usuario()) {
         <div class="avatar" [matTooltip]="getNombre() + ' · ' + getRol()" [matTooltipDisabled]="!compact()" matTooltipPosition="right">
           {{ getIniciales() }}
@@ -131,20 +137,21 @@
           <span class="skeleton block h-4 w-14 rounded-full"></span>
         </div>
         }
-      </div>
+      </a>
 
       <div class="user-actions">
-        <button
-          type="button"
+        <a
+          routerLink="/menu/mi-cuenta"
+          (click)="closeOnMobile()"
           class="action-btn"
-          (click)="cambiarPass()"
-          matTooltip="Cambiar contraseña"
+          [class.active]="enMiCuenta()"
+          matTooltip="Mi cuenta"
           [matTooltipDisabled]="!compact()"
           matTooltipPosition="right"
         >
-          <mat-icon>lock_reset</mat-icon>
-          <span class="action-label">Contraseña</span>
-        </button>
+          <mat-icon>manage_accounts</mat-icon>
+          <span class="action-label">Mi cuenta</span>
+        </a>
         <button
           type="button"
           class="action-btn danger"

@@ -8,8 +8,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { AppService } from '../../app.service';
 import { UsuarioService } from '../../services/usuario.service';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogCambiarPassComponent } from '../dialog-cambiar-pass/dialog-cambiar-pass.component';
 import Swal from 'sweetalert2';
 
 interface MenuItem {
@@ -30,7 +28,6 @@ const STORAGE_KEY = 'oc.sidebar.expanded';
 })
 export class NavbarComponent implements OnInit {
   router = inject(Router);
-  dialog = inject(MatDialog);
   usuarioService = inject(UsuarioService);
   appService = inject(AppService);
 
@@ -86,6 +83,7 @@ export class NavbarComponent implements OnInit {
 
   seccionActual = computed(() => {
     const todos = [...this.listMenu, this.adminItem];
+    if (this.enMiCuenta()) return 'Mi cuenta';
     return todos.find((i) => this.isActive(i))?.name ?? 'Olympus Courier';
   });
 
@@ -160,15 +158,8 @@ export class NavbarComponent implements OnInit {
     return iniciales || '?';
   }
 
-  cambiarPass() {
-    this.closeOnMobile();
-    const dialogRef = this.dialog.open(DialogCambiarPassComponent, {
-      width: '770px',
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log(result);
-    });
-  }
+  /** Página "Mi cuenta" (perfil y cambio de contraseña) */
+  enMiCuenta = computed(() => this.seccion() === 'mi-cuenta');
 
   logout() {
     this.closeOnMobile();
