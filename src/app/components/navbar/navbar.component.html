@@ -1,120 +1,162 @@
-<!-- Mobile top app bar -->
-<header class="sticky top-0 z-30 flex items-center justify-between gap-3 bg-colorP1 px-4 py-3 text-white shadow-sm md:hidden">
-  <div class="flex flex-col leading-tight">
-    <span class="text-sm font-medium">{{ getNombre() }}</span>
-    <span class="text-xs text-white/70">{{ getRol() }}</span>
+<!-- Item de navegación reutilizable -->
+<ng-template #navItem let-item let-i="i">
+  <a
+    [routerLink]="'/menu/' + item.link"
+    (click)="closeOnMobile()"
+    class="nav-link"
+    [class.active]="isActive(item)"
+    [attr.aria-current]="isActive(item) ? 'page' : null"
+    [style.--i]="i"
+    [matTooltip]="item.name"
+    [matTooltipDisabled]="!compact()"
+    matTooltipPosition="right"
+  >
+    <span class="nav-icon"><mat-icon>{{ item.icon }}</mat-icon></span>
+    <span class="nav-label">{{ item.name }}</span>
+    <mat-icon class="nav-chevron">chevron_right</mat-icon>
+  </a>
+</ng-template>
+
+<!-- ================= Mobile: barra superior ================= -->
+<header class="topbar">
+  <button type="button" class="topbar-btn" (click)="openMobile()" aria-label="Abrir menú">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="flex min-w-0 flex-1 items-center gap-2.5">
+    <img src="assets/logo.png" alt="" class="h-7 w-auto shrink-0" />
+    <div class="flex min-w-0 flex-col leading-tight">
+      <span class="truncate text-[15px] font-semibold text-t">{{ seccionActual() }}</span>
+      <span class="truncate text-[11px] uppercase tracking-wider text-t2">Olympus Courier</span>
+    </div>
   </div>
-  <button mat-icon-button (click)="toggle()" aria-label="Abrir menú">
-    <mat-icon class="text-white">menu</mat-icon>
+
+  <button type="button" class="avatar avatar-sm" (click)="openMobile()" aria-label="Abrir menú de usuario">
+    {{ getIniciales() }}
   </button>
 </header>
 
-<!-- Backdrop (mobile drawer) -->
-@if (isOpen()) {
-<div class="fixed inset-0 z-30 bg-black/40 md:hidden" (click)="close()"></div>
-}
+<!-- ================= Mobile: backdrop ================= -->
+<div class="backdrop" [class.show]="mobileOpen()" (click)="close()" aria-hidden="true"></div>
 
-<!-- Sidebar / Drawer -->
+<!-- ================= Sidebar / Drawer ================= -->
 <aside
-  [ngClass]="{
-    '-translate-x-full': !isOpen(),
-    'translate-x-0': isOpen(),
-    'md:w-72': isOpen(),
-    'md:w-[76px]': !isOpen()
-  }"
-  class="fixed inset-y-0 left-0 z-40 flex w-72 flex-col bg-colorP1 text-white transition-all duration-300 ease-in-out md:static md:h-screen md:translate-x-0"
+  class="sidebar"
+  [class.is-compact]="compact()"
+  [class.is-open]="mobileOpen()"
+  [attr.aria-hidden]="!isDesktop() && !mobileOpen() ? true : null"
+  [attr.inert]="!isDesktop() && !mobileOpen() ? '' : null"
+  aria-label="Menú principal"
 >
-  <div class="flex items-center gap-3 border-b border-white/10 px-4 py-4">
-    <button
-      type="button"
-      class="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-p1 transition-transform hover:scale-105 md:flex"
-      (click)="toggle()"
-      [matTooltip]="isOpen() ? 'Contraer menú' : 'Expandir menú'"
-      matTooltipPosition="below"
-    >
-      {{ getIniciales() }}
-    </button>
-    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-semibold text-p1 md:hidden">
-      {{ getIniciales() }}
-    </div>
-    <div [ngClass]="{ 'md:hidden': !isOpen() }" class="flex flex-col overflow-hidden leading-tight">
-      <span class="truncate text-sm font-medium">{{ getNombre() }}</span>
-      <span class="truncate text-xs text-white/70">{{ getRol() }}</span>
-    </div>
-    <button mat-icon-button class="ml-auto md:hidden" (click)="close()" aria-label="Cerrar menú">
-      <mat-icon class="text-white">close</mat-icon>
-    </button>
-  </div>
+  <!-- Botón de colapsar (desktop) -->
+  <button
+    type="button"
+    class="edge-toggle"
+    (click)="toggleExpanded()"
+    [attr.aria-label]="expanded() ? 'Contraer menú' : 'Expandir menú'"
+    [matTooltip]="expanded() ? 'Contraer (Ctrl+B)' : 'Expandir (Ctrl+B)'"
+    matTooltipPosition="right"
+  >
+    <mat-icon>chevron_left</mat-icon>
+  </button>
 
-  <nav class="flex-1 overflow-y-auto px-2 py-3">
-    <p [ngClass]="{ 'md:hidden': !isOpen() }" class="px-3 pb-2 text-xs font-medium uppercase tracking-wide text-white/50">
-      Navegación
-    </p>
-    <ul class="flex flex-col gap-1">
-      @for (item of listMenu; track $index) {
-      <li>
-        <a
-          [routerLink]="item.link"
-          routerLinkActive="bg-white/15 text-white"
-          (click)="closeOnMobile()"
-          [matTooltip]="isOpen() ? '' : item.name"
-          [matTooltipDisabled]="isOpen()"
-          matTooltipPosition="right"
-          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <mat-icon class="shrink-0 text-[20px]">{{ item.icon }}</mat-icon>
-          <span [ngClass]="{ 'md:hidden': !isOpen() }" class="truncate">{{ item.name }}</span>
-        </a>
-      </li>
-      }
+  <div class="sidebar-inner">
+    <!-- Decoración -->
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <!-- Marca -->
+    <div class="brand">
+      <button
+        type="button"
+        class="brand-mark"
+        (click)="isDesktop() ? toggleExpanded() : null"
+        [matTooltip]="'Expandir menú'"
+        [matTooltipDisabled]="!compact()"
+        matTooltipPosition="right"
+        aria-label="Olympus Courier"
+      >
+        <img src="assets/logo.png" alt="" />
+      </button>
+      <div class="brand-text">
+        <img src="assets/full_logo_white.png" alt="Olympus Courier" class="h-[18px] w-auto" />
+        <span class="mt-1.5 block text-[10px] font-medium uppercase tracking-[0.18em] text-p-200/80">
+          Gestión de repartos
+        </span>
+      </div>
+      <button type="button" class="close-btn" (click)="close()" aria-label="Cerrar menú">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="nav">
+      <p class="section-label"><span>Principal</span></p>
+      <ul class="flex flex-col gap-1">
+        @for (item of listMenu; track item.link; let i = $index) {
+        <li>
+          <ng-container *ngTemplateOutlet="navItem; context: { $implicit: item, i: i }" />
+        </li>
+        }
+      </ul>
+
       @if (esAdmin()) {
-      <li>
-        <a
-          routerLink="/menu/panel-admin/usuarios"
-          routerLinkActive="bg-white/15 text-white"
-          (click)="closeOnMobile()"
-          [matTooltip]="isOpen() ? '' : 'Panel Admin'"
-          [matTooltipDisabled]="isOpen()"
-          matTooltipPosition="right"
-          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <mat-icon class="shrink-0 text-[20px]">admin_panel_settings</mat-icon>
-          <span [ngClass]="{ 'md:hidden': !isOpen() }" class="truncate">Panel Admin</span>
-        </a>
-      </li>
+      <p class="section-label section-gap"><span>Administración</span></p>
+      <ul class="flex flex-col gap-1">
+        <li>
+          <ng-container *ngTemplateOutlet="navItem; context: { $implicit: adminItem, i: listMenu.length }" />
+        </li>
+      </ul>
       }
-    </ul>
-  </nav>
+    </nav>
 
-  <div class="border-t border-white/10 px-2 py-3">
-    <p [ngClass]="{ 'md:hidden': !isOpen() }" class="px-3 pb-2 text-xs font-medium uppercase tracking-wide text-white/50">
-      Cuenta
-    </p>
-    <ul class="flex flex-col gap-1">
-      <li>
-        <a
+    <!-- Usuario -->
+    <div class="user-area">
+      <div class="user-card">
+        @if (usuarioService.usuario()) {
+        <div class="avatar" [matTooltip]="getNombre() + ' · ' + getRol()" [matTooltipDisabled]="!compact()" matTooltipPosition="right">
+          {{ getIniciales() }}
+          <span class="status-dot"></span>
+        </div>
+        <div class="user-info">
+          <span class="block truncate text-[11px] text-p-200/80">{{ saludo() }},</span>
+          <span class="block truncate text-sm font-semibold text-white">{{ getNombre() }}</span>
+          <span class="role-pill">{{ getRol() }}</span>
+        </div>
+        } @else {
+        <div class="avatar skeleton"></div>
+        <div class="user-info w-full">
+          <span class="skeleton mb-1.5 block h-2.5 w-16 rounded"></span>
+          <span class="skeleton mb-1.5 block h-3.5 w-28 rounded"></span>
+          <span class="skeleton block h-4 w-14 rounded-full"></span>
+        </div>
+        }
+      </div>
+
+      <div class="user-actions">
+        <button
+          type="button"
+          class="action-btn"
           (click)="cambiarPass()"
-          [matTooltip]="isOpen() ? '' : 'Cambiar Contraseña'"
-          [matTooltipDisabled]="isOpen()"
+          matTooltip="Cambiar contraseña"
+          [matTooltipDisabled]="!compact()"
           matTooltipPosition="right"
-          class="flex cursor-pointer select-none items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
-          <mat-icon class="shrink-0 text-[20px]">sync_lock</mat-icon>
-          <span [ngClass]="{ 'md:hidden': !isOpen() }" class="truncate">Cambiar Contraseña</span>
-        </a>
-      </li>
-      <li>
-        <a
+          <mat-icon>lock_reset</mat-icon>
+          <span class="action-label">Contraseña</span>
+        </button>
+        <button
+          type="button"
+          class="action-btn danger"
           (click)="logout()"
-          [matTooltip]="isOpen() ? '' : 'Cerrar Sesión'"
-          [matTooltipDisabled]="isOpen()"
+          matTooltip="Cerrar sesión"
+          [matTooltipDisabled]="!compact()"
           matTooltipPosition="right"
-          class="flex cursor-pointer select-none items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
-          <mat-icon class="shrink-0 text-[20px]">logout</mat-icon>
-          <span [ngClass]="{ 'md:hidden': !isOpen() }" class="truncate">Cerrar Sesión</span>
-        </a>
-      </li>
-    </ul>
+          <mat-icon>logout</mat-icon>
+          <span class="action-label">Salir</span>
+        </button>
+      </div>
+    </div>
   </div>
 </aside>
