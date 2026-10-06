@@ -1,7 +1,7 @@
 # Plantilla para el servidor: copiar a /opt/olympuscourier-web/docker-compose.yml
 services:
   web:
-    image: ghcr.io/atmosferasoltec/olympuscourier-web:latest
+    image: ghcr.io/atmosferasoltec/olympuscourier-web:${IMAGE_TAG:-latest}
     ports:
       - "127.0.0.1:3010:80"
     restart: unless-stopped
