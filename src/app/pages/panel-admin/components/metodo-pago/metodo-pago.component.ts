@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { EstadoFilterComponent } from '../estado-filter/estado-filter.component';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MetodoPagoService } from '../../../../services/metodo-pago.service';
@@ -15,13 +16,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     selector: 'app-metodo-pago',
     templateUrl: './metodo-pago.component.html',
     styleUrl: './metodo-pago.component.scss',
-    imports: [CommonModule, ReactiveFormsModule, MostrarActivoPipe, MatIconModule, MatButtonModule, MatTooltipModule]
+    imports: [EstadoFilterComponent, CommonModule, ReactiveFormsModule, MostrarActivoPipe, MatIconModule, MatButtonModule, MatTooltipModule]
 })
 export class MetodoPagoComponent {
 
-  estado = new FormControl('S');
+  estado = new FormControl<'S' | 'N'>('S', { nonNullable: true });
   metodoPagoService = inject(MetodoPagoService)
   dialog = inject(MatDialog)
+
+  skeleton = [1, 2, 3, 4];
+
+  setEstado(valor: 'S' | 'N') {
+    this.estado.setValue(valor);
+  }
 
   ngOnInit(): void {
     this.estado.valueChanges
@@ -38,7 +45,9 @@ export class MetodoPagoComponent {
   openDialog(item: MetodoPago | null = null) {
     const dialogRef = this.dialog.open(DialogMetodoPagoComponent, {
       data: item,
-      width: "770px"
+      width: "480px",
+      maxWidth: "95vw",
+      panelClass: "adm-dialog-panel"
     })
 
     dialogRef.afterClosed().subscribe(result => {
@@ -77,7 +86,7 @@ export class MetodoPagoComponent {
                 confirmButtonColor: "#047CC4",
               })
               // Actualizar la lista de distritos
-              this.metodoPagoService.listarMetodosPago();
+              this.metodoPagoService.listarMetodosPago(this.estado.value);
             } else {
               Swal.fire({
                 icon: "error",

@@ -1,23 +1,21 @@
-<div class="container">
+<div class="adm-dialog">
+  <div>
+    <h2 class="adm-dialog-title">{{ data ? 'Editar distrito' : 'Agregar distrito' }}</h2>
+    <p class="adm-dialog-sub">Los distritos se usan para organizar los repartos.</p>
+  </div>
 
-    <h2 class="w-full font-semibold text-colorP1 text-start">
-        @if(data === undefined){
-            Agregar Distrito
-        }@else {
-            Editar Distrito
-        }
-    </h2>
-
-    <form [formGroup]="formulario">
-
-        <div class="caja">
-            <span class="label">Nombre </span>
-            <input class="input" type="text" placeholder="Ingrese nombre de distrito" formControlName="nombre">
-        </div>
-    </form>
-
-    <div class="flex gap-4 mt-4">
-        <app-boton text="Cancelar" (click)="closeDialog()"></app-boton>
-        <app-boton text="Guardar" (click)="guardar()"></app-boton>
+  <form [formGroup]="formulario" (ngSubmit)="guardar()" class="flex flex-col gap-5">
+    <div class="adm-field">
+      <label class="adm-label" for="nombre">Nombre</label>
+      <input id="nombre" class="adm-input" type="text" placeholder="Ingrese el nombre del distrito" formControlName="nombre" autocomplete="off" />
+      @if (formulario.get('nombre')?.touched && formulario.get('nombre')?.hasError('required')) {
+      <span class="adm-error">Campo obligatorio</span>
+      }
     </div>
+
+    <div class="adm-dialog-actions">
+      <button type="button" class="adm-btn adm-btn-ghost" (click)="closeDialog()">Cancelar</button>
+      <button type="submit" class="adm-btn adm-btn-primary">Guardar</button>
+    </div>
+  </form>
 </div>

@@ -1,93 +1,72 @@
-<div class="flex flex-col gap-3 my-3 sm:flex-row sm:items-center sm:justify-between">
-  <select
-    [value]="distritoService.activo()"
-    (change)="setActivo($event)"
-    class="w-full bg-gray-50 border border-gray-300 text-textos text-sm rounded-lg focus:ring-p1 focus:border-p1 p-2.5 sm:w-auto"
-  >
-    <option value="S">Activos</option>
-    <option value="N">Inactivos</option>
-  </select>
-  <button
-    (click)="openDialog()"
-    class="px-4 py-2 font-semibold text-white rounded-lg bg-p1 hover:bg-p2"
-  >
-    Añadir
+<div class="adm-toolbar">
+  <app-estado-filter [value]="distritoService.activo()" (valueChange)="setActivo($event)" />
+  <button type="button" (click)="openDialog()" class="adm-btn adm-btn-primary">
+    <mat-icon>add</mat-icon>
+    Añadir distrito
   </button>
 </div>
 
-<div class="overflow-x-auto border border-gray-100 shadow-sm rounded-xl">
-  <table class="w-full min-w-[520px] text-sm text-center text-textos">
-    <thead class="text-xs font-semibold tracking-wide uppercase bg-gray-50 text-textos">
+<div class="adm-card overflow-x-auto">
+  <table class="adm-table min-w-[420px]">
+    <thead>
       <tr>
-        <th scope="col" class="px-6 py-3">Detalle</th>
-        <th scope="col" class="px-6 py-3">Estado</th>
-        <th scope="col" class="px-6 py-3">Acciones</th>
+        <th scope="col">Detalle</th>
+        <th scope="col">Estado</th>
+        <th scope="col" class="adm-col-end">Acciones</th>
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-100">
-      @if(distritoService.isLoading()){
-      <tr class="bg-white">
-        <td colspan="7" class="py-3">
-          <div class="flex items-center justify-center">
-            <div class="loader"></div>
-          </div>
-        </td>
-      </tr>
-      }@else { @for (item of distritoService.list(); track $index) {
-      <tr class="bg-white transition-colors hover:bg-gray-50">
-        <td class="px-6 py-3 font-medium text-gray-700 whitespace-nowrap">
-          {{ item.nombre | uppercase }} - {{ item.id_ruc }}
-        </td>
-        <td class="px-6 py-3 whitespace-nowrap">
-          <div class="flex flex-row items-center justify-center">
-            <div
-              [ngClass]="{
-                'bg-green-500': item.activo == 'S',
-                'bg-red-500': item.activo == 'N'
-              }"
-              class="h-2.5 w-2.5 rounded-full me-2"
-            ></div>
-            {{ item.activo | mostrarActivo }}
-          </div>
-        </td>
-
-        <td class="px-6 py-3 whitespace-nowrap">
-          @if(item.activo == "S"){
-          <button
-            mat-icon-button
-            matTooltip="Editar"
-            (click)="openDialog(item)"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            matTooltip="Eliminar"
-            (click)="eliminar(item, 'N')"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
-          }@else if(item.activo === "N"){
-          <button
-            mat-icon-button
-            matTooltip="Restaurar"
-            (click)="eliminar(item, 'S')"
-          >
-            <mat-icon>restart_alt</mat-icon>
-          </button>
-          }
-        </td>
-      </tr>
-      } @empty {
-      <tr class="bg-white">
-        <td colspan="7" class="py-6">
-          <div class="flex flex-col items-center justify-center gap-1 text-textos">
-            <mat-icon>hourglass_empty</mat-icon>
-            Sin Datos
-          </div>
-        </td>
-      </tr>
-      } }
+    <tbody>
+      @if (distritoService.isLoading()) {
+        @for (i of skeleton; track i) {
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg adm-skeleton"></div>
+              <div class="w-44 adm-skeleton"></div>
+            </div>
+          </td>
+          <td><div class="w-16 adm-skeleton"></div></td>
+          <td></td>
+        </tr>
+        }
+      } @else {
+        @for (item of distritoService.list(); track item.id) {
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <span class="adm-icon-tile"><mat-icon>location_on</mat-icon></span>
+              <span class="adm-cell-main">{{ item.nombre | uppercase }}</span>
+            </div>
+          </td>
+          <td><span class="adm-status adm-status-{{ item.activo }}">{{ item.activo | mostrarActivo }}</span></td>
+          <td class="adm-col-end">
+            <div class="adm-actions">
+              @if (item.activo === 'S') {
+              <button class="adm-icon-btn" matTooltip="Editar" aria-label="Editar" (click)="openDialog(item)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="adm-icon-btn danger" matTooltip="Eliminar" aria-label="Eliminar" (click)="eliminar(item, 'N')">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+              } @else {
+              <button class="adm-icon-btn success" matTooltip="Restaurar" aria-label="Restaurar" (click)="eliminar(item, 'S')">
+                <mat-icon>restart_alt</mat-icon>
+              </button>
+              }
+            </div>
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="3">
+            <div class="adm-empty">
+              <mat-icon>location_off</mat-icon>
+              Sin distritos
+            </div>
+          </td>
+        </tr>
+        }
+      }
     </tbody>
   </table>
 </div>

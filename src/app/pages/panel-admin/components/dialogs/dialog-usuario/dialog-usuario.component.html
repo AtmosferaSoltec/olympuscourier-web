@@ -1,85 +1,59 @@
-<div class="container">
-    <h1>
-        @if(data === undefined){
-        Agregar Usuario
-        }@else {
-        Editar Usuario
+<div class="adm-dialog">
+  <div>
+    <h2 class="adm-dialog-title">{{ data === undefined ? 'Agregar usuario' : 'Editar usuario' }}</h2>
+    <p class="adm-dialog-sub">Completa los datos del usuario.</p>
+  </div>
+
+  <form [formGroup]="formulario" (submit)="guardar()" class="flex flex-col gap-5">
+    <div class="adm-form">
+    <div class="adm-field">
+      <label class="adm-label" for="documento">N° de documento</label>
+      <input id="documento" class="adm-input" type="text" maxlength="8" inputmode="numeric" (keypress)="numerico($event)" placeholder="8 dígitos" formControlName="documento" />
+      @if (formulario.get('documento')?.touched) {
+        @if (formulario.get('documento')?.hasError('required')) {
+        <span class="adm-error">Campo obligatorio</span>
         }
-    </h1>
-    <form [formGroup]="formulario" (submit)="guardar()">
+        @if (formulario.get('documento')?.hasError('minlength')) {
+        <span class="adm-error">Debe tener 8 dígitos</span>
+        }
+      }
+    </div>
+    <div class="adm-field">
+      <label class="adm-label" for="telefono">Teléfono</label>
+      <input id="telefono" class="adm-input" type="text" maxlength="9" inputmode="numeric" (keypress)="numerico($event)" placeholder="9 dígitos" formControlName="telefono" />
+      @if (formulario.get('telefono')?.touched && formulario.get('telefono')?.hasError('minlength')) {
+        <span class="adm-error">Debe tener al menos 9 dígitos</span>
+      }
+    </div>
+    <div class="adm-field">
+      <label class="adm-label" for="nombres">Nombres</label>
+      <input id="nombres" class="adm-input" type="text" placeholder="Nombres" formControlName="nombres" />
+    </div>
+    <div class="adm-field">
+      <label class="adm-label" for="apellidos">Apellidos</label>
+      <input id="apellidos" class="adm-input" type="text" placeholder="Apellidos" formControlName="apellidos" />
+    </div>
+    <div class="adm-field full">
+      <label class="adm-label" for="correo">Correo</label>
+      <input id="correo" class="adm-input" type="email" placeholder="correo@ejemplo.com" formControlName="correo" />
+    </div>
+    <div class="adm-field">
+      <label class="adm-label" for="fecha_nac">Fecha de nacimiento</label>
+      <input id="fecha_nac" class="adm-input" type="date" formControlName="fecha_nac" />
+    </div>
+    <div class="adm-field">
+      <label class="adm-label" for="cod_rol">Rol</label>
+      <select id="cod_rol" class="adm-input" formControlName="cod_rol">
+        <option value="A">Admin</option>
+        <option value="U">Usuario</option>
+        <option value="D">Delivery</option>
+      </select>
+    </div>
+    </div>
 
-        <div class="caja">
-            <span class="label">N° Documento </span>
-            <div class="input">
-                <input type="text" maxlength="8" (keypress)="numerico($event)" placeholder="Ingrese número de doc"
-                    formControlName="documento">
-                @if(formulario.get('documento')?.touched){
-                @if (formulario.get('documento')?.hasError('required')) {
-                <span>Campo Obligatorio</span>
-                }
-                @if (formulario.get('documento')?.hasError('minlength')) {
-                <span>El número de documento debe tener 8 dígitos</span>
-                }
-                }
-            </div>
-        </div>
-
-        <div class="caja">
-            <span class="label">Nombres </span>
-            <div class="input">
-                <input type="text" placeholder="Ingrese nombres" formControlName="nombres">
-            </div>
-        </div>
-
-        <div class="caja">
-            <span class="label"> Apellidos </span>
-            <div class="input">
-                <input type="text" placeholder="Ingrese apellidos" formControlName="apellidos">
-            </div>
-        </div>
-
-        <div class="caja">
-            <span class="label"> Teléfono </span>
-            <div class="input">
-                <input type="text" placeholder="Ingrese teléfono" maxlength="9" (keypress)="numerico($event)"
-                    formControlName="telefono">
-                @if (formulario.get('telefono')?.touched){
-                @if (formulario.get('telefono')?.hasError('minlength')) {
-                <span>El número de teléfono debe tener al menos 9 dígitos</span>
-                }
-                }
-            </div>
-        </div>
-
-        <div class="caja">
-            <span class="label"> Correo </span>
-            <div class="input">
-                <input type="email" placeholder="Ingrese correo electrónico" formControlName="correo">
-            </div>
-        </div>
-
-        <div class="caja">
-            <span class="label"> Fecha Nacimiento </span>
-            <div class="input">
-                <input type="date" placeholder="Ingrese fecha de nacimiento" formControlName="fecha_nac">
-            </div>
-        </div>
-
-        <!--Seleccionar Distrito-->
-        <div class="caja">
-            <span class="label">Rol</span>
-            <div class="input">
-                <select formControlName="cod_rol">
-                    <option value="A">Admin</option>
-                    <option value="U">Usuario</option>
-                    <option value="D">Delivery</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="actions">
-            <button type="button" (click)="closeDialog()">Cancelar</button>
-            <button type="submit">Guardar</button>
-        </div>
-    </form>
+    <div class="adm-dialog-actions">
+      <button type="button" class="adm-btn adm-btn-ghost" (click)="closeDialog()">Cancelar</button>
+      <button type="submit" class="adm-btn adm-btn-primary">Guardar</button>
+    </div>
+  </form>
 </div>

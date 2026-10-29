@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { EstadoFilterComponent } from '../estado-filter/estado-filter.component';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,8 +16,7 @@ import { MostrarActivoPipe } from '../../../../pipes/mostrar-activo.pipe';
     selector: 'app-destinos',
     templateUrl: './distritos.component.html',
     styleUrl: './distritos.component.css',
-    imports: [
-        CommonModule,
+    imports: [EstadoFilterComponent, CommonModule,
         MatIconModule,
         MatButtonModule,
         MatTooltipModule,
@@ -33,15 +33,19 @@ export class DestinosComponent implements OnInit {
     this.distritoService.getAll();
   }
 
-  setActivo(event: any) {
-    this.distritoService.activo.set(event?.target?.value);
+  skeleton = [1, 2, 3, 4];
+
+  setActivo(valor: 'S' | 'N') {
+    this.distritoService.activo.set(valor);
     this.distritoService.getAll();
   }
 
   openDialog(item: Distrito | null = null) {
     const dialogRef = this.dialog.open(DialogDistritosComponent, {
       data: item,
-      width: '770px',
+      width: '480px',
+      maxWidth: '95vw',
+      panelClass: 'adm-dialog-panel',
     });
 
     dialogRef.afterClosed().subscribe((result) => {

@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { EstadoFilterComponent } from '../estado-filter/estado-filter.component';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,14 +9,12 @@ import { MostrarActivoPipe } from '../../../../pipes/mostrar-activo.pipe';
 import { MatDialog } from '@angular/material/dialog';
 import Swal from 'sweetalert2';
 import { VehiculoService } from '../../../../services/vehiculo.service';
-import { delay } from 'rxjs';
 import { Vehiculo } from '../../../../interfaces/vehiculo';
 import { DialogVehiculoComponent } from '../dialogs/dialog-vehiculo/dialog-vehiculo.component';
 
 @Component({
     selector: 'app-vehiculo',
-    imports: [
-        CommonModule,
+    imports: [EstadoFilterComponent, CommonModule,
         MatIconModule,
         MatButtonModule,
         MatTooltipModule,
@@ -26,7 +25,7 @@ import { DialogVehiculoComponent } from '../dialogs/dialog-vehiculo/dialog-vehic
     styleUrl: './vehiculo.component.scss'
 })
 export class VehiculoComponent {
-  estado = new FormControl('S');
+  estado = new FormControl<'S' | 'N'>('S', { nonNullable: true });
   vehiculoService = inject(VehiculoService);
   dialog = inject(MatDialog);
 
@@ -44,6 +43,12 @@ export class VehiculoComponent {
     this.listarVehiculos();
   }
 
+  skeleton = [1, 2, 3, 4];
+
+  filtrar(valor: 'S' | 'N') {
+    this.estado.setValue(valor);
+  }
+
   listVehiculos = signal<Vehiculo[]>([]);
   isLoading = signal(false);
 
@@ -51,7 +56,7 @@ export class VehiculoComponent {
     this.isLoading.set(true);
     this.vehiculoService
       .getAll(activo)
-      .pipe(delay(800))
+      
       .subscribe({
         next: (res) => {
           console.log(res);
@@ -70,12 +75,14 @@ export class VehiculoComponent {
   openDialog(item: Vehiculo | null = null) {
     const dialogRef = this.dialog.open(DialogVehiculoComponent, {
       data: item,
-      width: '770px',
+      width: '480px',
+      maxWidth: '95vw',
+      panelClass: 'adm-dialog-panel',
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result === true) {
-        this.listarVehiculos();
+        this.listarVehiculos(this.estado.value);
       }
     });
   }
@@ -115,7 +122,7 @@ export class VehiculoComponent {
                 confirmButtonColor: '#047CC4',
               });
               // Actualizar la lista de distritos
-              this.vehiculoService.getAll();
+              this.listarVehiculos(this.estado.value);
             } else {
               Swal.fire({
                 icon: 'error',

@@ -1,14 +1,20 @@
-<h1>Panel Administrativo</h1>
-<div class="overflow-x-auto text-sm font-medium text-center text-gray-500 border-b border-gray-200">
-    <ul class="flex flex-nowrap -mb-px">
-        @for (item of data; track $index) {
-        <li class="me-2 shrink-0">
-            <button (click)="navegar(item.url)"
-                [ngClass]="{'active text-p1 border-b-2 border-p1 rounded-t-lg': item.url === url}"
-                class="inline-block text-lg p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 whitespace-nowrap">{{item.label}}
-            </button>
-        </li>
-        }
-    </ul>
-</div>
+<header class="adm-header">
+  <h1 class="adm-title">Panel Administrativo</h1>
+  <p class="adm-subtitle">Gestiona usuarios, distritos, métodos de pago y vehículos.</p>
+</header>
+
+<nav #nav class="adm-tabs" aria-label="Secciones del panel">
+  @if (indicator(); as ind) {
+  <span class="adm-tab-indicator" [class.no-anim]="!animar()"
+    [style.width.px]="ind.w" [style.height.px]="ind.h"
+    [style.transform]="'translate(' + ind.x + 'px,' + ind.y + 'px)'"></span>
+  }
+  @for (item of data; track item.url) {
+  <a [routerLink]="['/menu', 'panel-admin', item.url]" routerLinkActive="active" class="adm-tab">
+    <mat-icon>{{ item.icon }}</mat-icon>
+    {{ item.label }}
+  </a>
+  }
+</nav>
+
 <router-outlet></router-outlet>

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { EstadoFilterComponent } from '../estado-filter/estado-filter.component';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +19,7 @@ import { PanelAdminService } from '../../panel-admin.service';
     selector: 'app-usuarios',
     templateUrl: './usuarios.component.html',
     styleUrl: './usuarios.component.scss',
-    imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule, MostrarRolPipe, ReactiveFormsModule, MostrarActivoPipe, FormatTelfPipe]
+    imports: [EstadoFilterComponent, CommonModule, MatIconModule, MatButtonModule, MatTooltipModule, MostrarRolPipe, ReactiveFormsModule, MostrarActivoPipe, FormatTelfPipe]
 })
 export class UsuariosComponent {
 
@@ -35,14 +36,23 @@ export class UsuariosComponent {
     })
   }
 
-  filtrar() {
-    this.panelAdminService.listarUsuarios(this.formulario.value.estado)
+  skeleton = [1, 2, 3, 4, 5];
+
+  setEstado(estado: 'S' | 'N') {
+    this.formulario.patchValue({ estado });
+    this.panelAdminService.listarUsuarios(estado);
+  }
+
+  iniciales(item: Usuario): string {
+    return `${item.nombres?.[0] ?? ''}${item.apellidos?.[0] ?? ''}`.toUpperCase();
   }
 
   openDialog(item: Usuario | undefined = undefined) {
     this.dialog.open(DialogUsuarioComponent, {
       data: item,
-      width: "770px"
+      width: "560px",
+      maxWidth: "95vw",
+      panelClass: "adm-dialog-panel"
     });
 
   }

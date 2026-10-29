@@ -1,17 +1,21 @@
-<div class="container">
-    <h1>
-        Agregar Distrito
-    </h1>
-    <form [formGroup]="formulario">
+<div class="adm-dialog">
+  <div>
+    <h2 class="adm-dialog-title">{{ data ? 'Editar método de pago' : 'Agregar método de pago' }}</h2>
+    <p class="adm-dialog-sub">Disponible al registrar pedidos.</p>
+  </div>
 
-        <div class="caja">
-            <span class="label">Nombre </span>
-            <input class="input" type="text" placeholder="Ingrese metodo de pago" formControlName="nombre">
-        </div>
-    </form>
-
-    <div class="actions">
-        <button (click)="closeDialog()">Cancelar</button>
-        <button (click)="guardar()">Guardar</button>
+  <form [formGroup]="formulario" (ngSubmit)="guardar()" class="flex flex-col gap-5">
+    <div class="adm-field">
+      <label class="adm-label" for="nombre">Nombre</label>
+      <input id="nombre" class="adm-input" type="text" placeholder="Ingrese el método de pago" formControlName="nombre" autocomplete="off" />
+      @if (formulario.get('nombre')?.touched && formulario.get('nombre')?.hasError('required')) {
+      <span class="adm-error">Campo obligatorio</span>
+      }
     </div>
+
+    <div class="adm-dialog-actions">
+      <button type="button" class="adm-btn adm-btn-ghost" (click)="closeDialog()">Cancelar</button>
+      <button type="submit" class="adm-btn adm-btn-primary">Guardar</button>
+    </div>
+  </form>
 </div>

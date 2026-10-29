@@ -174,3 +174,210 @@ h6 {
   overflow: hidden;
   border-radius: 16px;
 }
+
+/* ===== Panel Admin ===== */
+.adm-header {
+  @apply flex flex-col gap-1 mb-5;
+}
+.adm-title {
+  @apply text-2xl font-semibold tracking-tight text-t;
+}
+.adm-subtitle {
+  @apply text-sm text-textos;
+}
+
+/* Tabs (segmented, sin scroll) */
+.adm-tabs {
+  @apply relative inline-flex flex-wrap gap-1 p-1 mb-5 rounded-xl bg-gray-100;
+}
+.adm-tab-indicator,
+.adm-seg-indicator {
+  @apply absolute top-0 left-0 bg-white rounded-lg shadow-sm pointer-events-none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.adm-tab-indicator.no-anim,
+.adm-seg-indicator.no-anim {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .adm-tab-indicator,
+  .adm-seg-indicator {
+    transition: none;
+  }
+}
+.adm-tab {
+  @apply relative z-10 inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-gray-500 transition-colors rounded-lg whitespace-nowrap hover:text-gray-800;
+}
+.adm-tab .mat-icon,
+.adm-tab .material-icons {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+.adm-tab.active {
+  @apply text-p1;
+}
+
+/* Toolbar */
+.adm-toolbar {
+  @apply flex flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between;
+}
+.adm-seg {
+  @apply relative inline-flex self-start p-0.5 text-sm rounded-lg bg-gray-100;
+}
+.adm-seg button {
+  @apply relative z-10 px-3.5 py-1.5 font-medium text-gray-500 transition-colors rounded-md hover:text-gray-800;
+}
+.adm-seg button.active {
+  @apply text-gray-900;
+}
+.adm-btn {
+  @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors rounded-lg;
+}
+.adm-btn .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+.adm-btn-primary {
+  @apply text-white bg-p1 hover:bg-p-700 active:bg-p-800;
+}
+.adm-btn-ghost {
+  @apply text-gray-600 bg-gray-100 hover:bg-gray-200;
+}
+
+/* Tabla */
+.adm-card {
+  @apply overflow-hidden bg-white border border-gray-200 rounded-xl;
+}
+.adm-table {
+  @apply w-full text-sm text-start text-gray-600;
+}
+.adm-table thead th {
+  @apply px-5 py-3 text-xs font-medium tracking-wide uppercase border-b border-gray-200 text-start text-gray-400 bg-gray-50/60;
+}
+.adm-table tbody tr {
+  @apply transition-colors border-b border-gray-100 last:border-0 hover:bg-gray-50/70;
+}
+.adm-table tbody td {
+  @apply px-5 py-3.5 whitespace-nowrap;
+}
+.adm-table .adm-col-end {
+  @apply text-end;
+}
+.adm-cell-main {
+  @apply font-medium text-t;
+}
+.adm-cell-sub {
+  @apply text-xs text-gray-400;
+}
+.adm-avatar {
+  @apply inline-flex items-center justify-center w-9 h-9 text-xs font-semibold rounded-full shrink-0 text-p-700 bg-p-100;
+}
+.adm-icon-tile {
+  @apply inline-flex items-center justify-center w-9 h-9 rounded-lg shrink-0 text-p-600 bg-p-50;
+}
+.adm-icon-tile .mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Badges y estado */
+.adm-badge {
+  @apply inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full;
+}
+.adm-badge-A {
+  @apply text-amber-700 bg-amber-50 ring-1 ring-inset ring-amber-200;
+}
+.adm-badge-U {
+  @apply text-emerald-700 bg-emerald-50 ring-1 ring-inset ring-emerald-200;
+}
+.adm-badge-D {
+  @apply text-sky-700 bg-sky-50 ring-1 ring-inset ring-sky-200;
+}
+.adm-badge-S {
+  @apply text-violet-700 bg-violet-50 ring-1 ring-inset ring-violet-200;
+}
+.adm-status {
+  @apply inline-flex items-center gap-2 text-sm;
+}
+.adm-status::before {
+  content: "";
+  @apply w-1.5 h-1.5 rounded-full bg-gray-300;
+}
+.adm-status-S::before {
+  @apply bg-emerald-500;
+}
+.adm-status-N::before {
+  @apply bg-red-400;
+}
+
+/* Acciones */
+.adm-actions {
+  @apply inline-flex items-center gap-0.5;
+}
+.adm-icon-btn {
+  @apply inline-flex items-center justify-center w-8 h-8 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-700;
+}
+.adm-icon-btn .mat-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}
+.adm-icon-btn.danger:hover {
+  @apply text-red-600 bg-red-50;
+}
+.adm-icon-btn.success:hover {
+  @apply text-emerald-600 bg-emerald-50;
+}
+
+/* Carga y vacío */
+.adm-skeleton {
+  @apply h-4 bg-gray-100 rounded animate-pulse;
+}
+.adm-empty {
+  @apply flex flex-col items-center gap-1 py-14 text-sm text-gray-400;
+}
+.adm-empty .mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  @apply text-gray-300;
+}
+
+/* Diálogos */
+.adm-dialog-panel .mat-mdc-dialog-surface {
+  border-radius: 16px;
+}
+.adm-dialog {
+  @apply flex flex-col gap-5 p-6;
+}
+.adm-dialog-title {
+  @apply text-lg font-semibold text-t;
+}
+.adm-dialog-sub {
+  @apply mt-0.5 text-sm text-textos;
+}
+.adm-form {
+  @apply grid gap-4 sm:grid-cols-2;
+}
+.adm-field {
+  @apply flex flex-col gap-1.5;
+}
+.adm-field.full {
+  @apply sm:col-span-2;
+}
+.adm-label {
+  @apply text-sm font-medium text-gray-700;
+}
+.adm-input {
+  @apply w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg text-t placeholder:text-gray-400 focus:outline-none focus:border-p1 focus:ring-2 focus:ring-p-100;
+}
+.adm-error {
+  @apply text-xs text-red-600;
+}
+.adm-dialog-actions {
+  @apply flex justify-end gap-2 pt-1;
+}
